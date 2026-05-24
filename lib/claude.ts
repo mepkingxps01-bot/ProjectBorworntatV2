@@ -103,45 +103,20 @@ Return ONLY valid JSON array.`,
 
 export async function generateQuestions(
   topic: Topic,
-  count: number = 5
+  count: number = 3
 ): Promise<Question[]> {
+  const contentSnippet = topic.content.slice(0, 1500);
   const message = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 2048,
+    max_tokens: 1200,
     messages: [
       {
         role: 'user',
-        content: `You are an ophthalmology exam question writer. Generate ${count} exam questions about: ${topic.name}
+        content: `Generate ${count} ophthalmology exam questions about "${topic.name}".
+Content: ${contentSnippet}
 
-Topic content: ${topic.content}
-
-Mix question types: 3 MCQ (multiple choice) and ${count - 3} CRQ (short answer).
-
-For MCQ: 4 options, only one correct.
-For CRQ: open-ended clinical question with model answer.
-
-Return ONLY valid JSON array:
-[{
-  "id": "q_1",
-  "type": "mcq",
-  "question": "Question text?",
-  "options": ["A. Option","B. Option","C. Option","D. Option"],
-  "correctAnswer": "A. Option",
-  "explanation": "Explanation of why this is correct and others are wrong",
-  "topic": "${topic.name}",
-  "difficulty": 2
-},{
-  "id": "q_2",
-  "type": "crq",
-  "question": "Clinical scenario question?",
-  "correctAnswer": "Model answer with key points",
-  "explanation": "Full explanation",
-  "topic": "${topic.name}",
-  "difficulty": 3
-}]
-
-Difficulty: 1=basic recall, 2=understanding, 3=clinical application.
-Base questions ONLY on the provided content. Return ONLY valid JSON.`,
+Return ONLY a JSON array. ${count - 1} MCQ (4 options) and 1 short-answer (crq).
+[{"id":"q1","type":"mcq","question":"...","options":["A.","B.","C.","D."],"correctAnswer":"A.","explanation":"...","topic":"${topic.name}","difficulty":2}]`,
       },
     ],
   });

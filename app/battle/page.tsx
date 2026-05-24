@@ -110,7 +110,7 @@ function BattleContent() {
       const res = await fetch('/api/generate-questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, sessionMethod: method, count: 5 }),
+        body: JSON.stringify({ topic, sessionMethod: method, count: 3 }),
       });
       const data = await res.json();
       const enemy: Enemy = data.enemy;
