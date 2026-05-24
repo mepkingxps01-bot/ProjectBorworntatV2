@@ -14,6 +14,72 @@ const PLAYER_MAX_HP = 100;
 const DAMAGE_CORRECT = 25;
 const DAMAGE_WRONG = 15;
 
+const LOADING_MESSAGES = [
+  '🌑 A dark presence stirs in the vitreous...',
+  '👁️ The enemy senses your knowledge gap...',
+  '⚡ Summoning pathology from the depths...',
+  '📜 Ancient ophthalmology tomes are consulted...',
+  '🔮 Battle questions materialise from the ether...',
+  '💀 Your enemy sharpens its clinical questions...',
+];
+
+function BattleLoadingScreen({ topic }: { topic: string }) {
+  const [msgIndex, setMsgIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMsgIndex((i) => (i + 1) % LOADING_MESSAGES.length);
+    }, 1800);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-[#080812] flex flex-col items-center justify-center gap-8 px-6">
+      <div className="relative flex items-center justify-center">
+        <div className="absolute w-32 h-32 rounded-full bg-violet-700/20 animate-ping" />
+        <div className="absolute w-24 h-24 rounded-full bg-violet-700/30 animate-pulse" />
+        <motion.div
+          className="relative text-7xl"
+          animate={{ rotate: [0, -10, 10, -10, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          ⚔️
+        </motion.div>
+      </div>
+
+      <div className="text-center space-y-3">
+        <h2 className="text-2xl font-bold text-white">Preparing Battle</h2>
+        <p className="text-violet-300 text-sm font-medium">{topic}</p>
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={msgIndex}
+            className="text-slate-400 text-sm max-w-xs"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.4 }}
+          >
+            {LOADING_MESSAGES[msgIndex]}
+          </motion.p>
+        </AnimatePresence>
+      </div>
+
+      <div className="flex gap-2">
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            className="w-2 h-2 rounded-full bg-violet-500"
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.4 }}
+          />
+        ))}
+      </div>
+
+      <p className="text-slate-600 text-xs">Powered by Claude AI · Usually 10–20 seconds</p>
+    </div>
+  );
+}
+
 function BattleContent() {
   const router = useRouter();
   const params = useSearchParams();
@@ -130,13 +196,7 @@ function BattleContent() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#080812] flex flex-col items-center justify-center gap-4">
-        <div className="text-4xl animate-bounce">⚔️</div>
-        <p className="text-slate-300 font-medium">Summoning your enemy...</p>
-        <p className="text-slate-500 text-sm">Generating battle questions with AI</p>
-      </div>
-    );
+    return <BattleLoadingScreen topic={topic?.name ?? 'Ophthalmology'} />;
   }
 
   if (!topic || !battle) {
