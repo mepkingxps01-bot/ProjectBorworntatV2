@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  --background: #080812;
+  --foreground: #e2e8f0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f0f1a; }
+::-webkit-scrollbar-thumb { background: #3b3b5c; border-radius: 3px; }
+
+@keyframes float-up {
+  0% { transform: translateY(0) scale(1); opacity: 0.8; }
+  100% { transform: translateY(-60px) scale(0); opacity: 0; }
+}
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+@keyframes damage-flash {
+  0%,100% { background: transparent; }
+  50% { background: rgba(239,68,68,0.3); }
+}
+
+@keyframes glow-pulse {
+  0%,100% { box-shadow: 0 0 10px rgba(124,58,237,0.4); }
+  50% { box-shadow: 0 0 25px rgba(124,58,237,0.8), 0 0 50px rgba(124,58,237,0.4); }
+}
+
+@keyframes xp-pop {
+  0% { transform: translateY(0) scale(0.8); opacity: 1; }
+  100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+}
+
+.particle { animation: float-up 3s ease-in-out infinite; }
+.shake { animation: shake 0.4s ease-in-out; }
+.damage-flash { animation: damage-flash 0.4s ease-in-out; }
+.glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+.xp-pop { animation: xp-pop 1.5s ease-out forwards; }
