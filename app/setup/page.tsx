@@ -105,7 +105,8 @@ export default function SetupPage() {
       router.push('/dashboard');
     } catch (e) {
       console.error(e);
-      setError('Something went wrong. Please check your API key and try again.');
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(`Error: ${msg}. Try with fewer topics or without a PDF first.`);
     } finally {
       setLoading(false);
       setLoadingMsg('');

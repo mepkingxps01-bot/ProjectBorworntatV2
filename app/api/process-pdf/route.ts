@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const maxDuration = 60;
 import * as pdfParseModule from 'pdf-parse';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const pdfParse: (buffer: Buffer) => Promise<{ text: string }> = (pdfParseModule as any).default ?? pdfParseModule;
