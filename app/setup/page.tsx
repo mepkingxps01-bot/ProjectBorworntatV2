@@ -6,6 +6,25 @@ import { Upload, Calendar, Tag, Loader2, CheckCircle, X, ArrowRight, ArrowLeft }
 import { useGameStore } from '@/store/game-store';
 import type { StudyPlan } from '@/types';
 
+async function extractTextFromPDF(file: File): Promise<string> {
+  const pdfjsLib = await import('pdfjs-dist');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const maxPages = Math.min(pdf.numPages, 80);
+  const pageTexts: string[] = [];
+
+  for (let i = 1; i <= maxPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const text = content.items.map((item) => ('str' in item ? item.str : '')).join(' ');
+    pageTexts.push(text);
+  }
+
+  return pageTexts.join('\n');
+}
+
 const SUGGESTED_TOPICS = [
   'Glaucoma', 'Cataract', 'Retina', 'Cornea', 'Neuro-ophthalmology',
   'Strabismus', 'Uvea', 'Ocular Adnexa', 'Refractive Error', 'Optics',
@@ -57,12 +76,15 @@ export default function SetupPage() {
       let resource = null;
 
       if (file) {
-        setLoadingMsg('Reading your textbook... 📖');
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('topics', JSON.stringify(topics));
-        const res = await fetch('/api/process-pdf', { method: 'POST', body: fd });
-        if (!res.ok) throw new Error('PDF processing failed');
+        setLoadingMsg('Reading PDF in browser... 📖');
+        const text = await extractTextFromPDF(file);
+        setLoadingMsg('AI is extracting topics from your textbook... 🧠');
+        const res = await fetch('/api/extract-topics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, fileName: file.name, examTopics: topics }),
+        });
+        if (!res.ok) throw new Error('Topic extraction failed');
         const data = await res.json();
         resource = data.resource;
         setResource(resource);
